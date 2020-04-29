@@ -1,0 +1,2 @@
+# errcodegen
+errcode map generator
