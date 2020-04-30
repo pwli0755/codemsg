@@ -9,6 +9,6 @@ go install github.com/pwli0755/errcodegen
 
 ## generate error code map
 ```shell
-cd path_to_sample
+cd parentpath_to_sample
 go generate ./sample/
 ```
