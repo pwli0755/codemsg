@@ -1,6 +1,6 @@
 package sample
 
-//go:generate errcodegen
+//go:generate codemsg
 const (
 	// 内部错误
 	ERROR = 500

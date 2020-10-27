@@ -83,8 +83,11 @@ func getComment(name string, group *ast.CommentGroup) string {
 func genCode(comments map[string]string) ([]byte, error) {
 	buf := bytes.NewBufferString("")
 
+	file := os.Getenv("GOFILE")
 	data := map[string]interface{}{
 		"pkg":       os.Getenv("GOPACKAGE"),
+		"source":    file,
+		"file":      strings.TrimSuffix(file, ".go") + suffix + ".go",
 		"comments":  comments,
 		"constType": constType,
 	}

@@ -1,10 +1,9 @@
-# errcodegen
-error code map generator
+# codemsg
+error code and message map generator
 
 ## install
 ```shell
-go get github.com/pwli0755/errcodegen
-go install github.com/pwli0755/errcodegen
+go get github.com/pwli0755/codemsg
 ```
 
 ## generate error code map

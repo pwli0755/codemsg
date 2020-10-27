@@ -1,4 +1,4 @@
-module github.com/pwli0755/errcodegen
+module github.com/pwli0755/codemsg
 
 go 1.14
 
