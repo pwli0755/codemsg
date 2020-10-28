@@ -245,7 +245,7 @@ func genJSON(m map[int]string) ([]byte, error) {
 		} else {
 			fmt.Fprint(&buf, ",\n")
 		}
-		fmt.Fprintf(&buf, "    %d:\"%s\"", k, m[k])
+		fmt.Fprintf(&buf, "    %d: \"%s\"", k, m[k])
 	}
 	fmt.Fprint(&buf, "\n}\n")
 	return buf.Bytes(), nil
