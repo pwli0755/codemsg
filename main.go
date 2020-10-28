@@ -9,7 +9,6 @@ import (
 	"go/token"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -22,10 +21,9 @@ var (
 
 func main() {
 	file := os.Getenv("GOFILE")
-
+	var symbols []string
 	// 保存注释信息
 	var comments = make(map[string]string)
-	var codemsg = make(map[int]string)
 
 	// 解析代码源文件，获取常量和注释之间的关系
 	fset := token.NewFileSet()
@@ -41,14 +39,11 @@ func main() {
 		if spec, ok := node.(*ast.ValueSpec); ok && len(spec.Names) == 1 {
 			// 仅提取常量的注释
 			ident := spec.Names[0]
-			value := spec.Values[0].(*ast.BasicLit).Value
-			valueInt, err := strconv.Atoi(value)
-			checkErr(err)
 			if ident.Obj.Kind == ast.Con {
 				// 获取注释信息
 				cmt := getComment(ident.Name, spec.Doc)
 				comments[ident.Name] = cmt
-				codemsg[valueInt] = cmt
+				symbols = append(symbols, ident.Name)
 			}
 		}
 	}
@@ -60,10 +55,25 @@ func main() {
 	out := strings.TrimSuffix(file, ".go") + suffix + ".go"
 	checkErr(ioutil.WriteFile(out, code, 0644))
 
-	code, _ = genJSON(codemsg)
-	// 生成json
-	out = strings.TrimSuffix(file, ".go") + suffix + ".json"
-	checkErr(ioutil.WriteFile(out, code, 0644))
+	wd, err := os.Getwd()
+	checkErr(err)
+	packageName, err := packageNameOfDir(wd)
+	checkErr(err)
+
+	// Fix  import "xxx" is a program, not an importable package
+	files, err := ioutil.ReadDir(wd)
+	checkErr(err)
+	for _, file := range files {
+		if !file.IsDir() && (file.Name() == "go.mod") {
+			// find go.mod, in the main package
+			packageName = ""
+			// json gernerate in main package is not suported
+			panic("json gernerate in main package is not suported!")
+		}
+	}
+
+	err = reflectMode(packageName, symbols, comments)
+	checkErr(err)
 
 }
 
@@ -116,21 +126,7 @@ func genCode(comments map[string]string) ([]byte, error) {
 
 	return format.Source(buf.Bytes())
 }
-func genJSON(m map[int]string) ([]byte, error) {
-	var buf bytes.Buffer
-	first := true
-	fmt.Fprint(&buf, "{\n")
-	for k, v := range m {
-		if first {
-			first = false
-		} else {
-			fmt.Fprint(&buf, ",\n")
-		}
-		fmt.Fprintf(&buf, `%d:"%s"`, k, v)
-	}
-	fmt.Fprint(&buf, "\n}\n")
-	return buf.Bytes(), nil
-}
+
 func checkErr(err error) {
 	if err != nil {
 		panic(fmt.Sprintf("err: %+v", err))
