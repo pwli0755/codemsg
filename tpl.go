@@ -8,6 +8,7 @@ const tpl = `
 // Source: {{.pkg}}/{{.source}}
 // {{.file}} is a generated file.
 
+// Package {{.pkg}} ...
 package {{.pkg}}
 
 // messages get msg from const comment
